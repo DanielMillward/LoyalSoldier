@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -21,6 +23,7 @@ public class MyActor extends Actor {
     static FixtureDef fixtureDef;
     static Body body;
     static PolygonShape groundBox;
+    Sprite sprite = new Sprite(new Texture(Gdx.files.internal("badlogic.jpg")));
 
     public MyActor() {
 
@@ -31,7 +34,7 @@ public class MyActor extends Actor {
         bodyDef = new BodyDef();
         bodyDef.type = DynamicBody;
 // Set our body's starting position in the world
-        bodyDef.position.set(100, 300);
+        bodyDef.position.set(9, 9);
 // Create our body in the world using our body definition
         body = world.createBody(bodyDef);
         // Create a fixture definition to apply our shape to
@@ -44,7 +47,7 @@ public class MyActor extends Actor {
 // Create a polygon shape
 // Set the polygon shape as a box which is twice the size of our view port and 20 high
 // (setAsBox takes half-width and half-height as arguments)
-        groundBox.setAsBox(30.0f, 50.0f);
+        groundBox.setAsBox(1.0f, 1.0f);
 // Create our fixture and attach it to the body
         body.createFixture(fixtureDef);
 // Remember to dispose of any shapes after you're done with them!
@@ -55,9 +58,12 @@ public class MyActor extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        Texture texture = new Texture(Gdx.files.internal("Player.png"));
-        batch.draw(texture,body.getPosition().x, body.getPosition().y);
-        setSize(5, 10);
-        setBounds(800,480,5,10);
+//        batch.draw(texture,body.getPosition().x, body.getPosition().y);
+        sprite.setBounds(body.getPosition().x - sprite.getWidth()/2, body.getPosition().y - sprite.getHeight()/2, 1, 1);
+        // Set origin center for the sprite to guarantee proper rotation with physicsBody.
+        sprite.setOriginCenter();
+        sprite.setRotation(MathUtils.radiansToDegrees * body.getAngle());
+        sprite.draw(batch);
+//        sprite.setPosition(body.getPosition().x - 15, body.getPosition().y - 25);
     }
 }
