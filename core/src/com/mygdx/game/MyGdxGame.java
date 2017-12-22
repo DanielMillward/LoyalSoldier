@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -51,11 +52,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	private TextButton leftButton;
 	private TextButton rightButton;
 
-	MyActor actor = new MyActor();
-	theGround ground = new theGround();
 
-	Vector2 vel = MyActor.body.getLinearVelocity();
-	Vector2 pos = MyActor.body.getPosition();
+
+
+
 	int MAX_VELOCITY = 2;
 
 
@@ -70,13 +70,23 @@ public class MyGdxGame extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(stage);
 		batch = new SpriteBatch();
 		UIbatch = new SpriteBatch();
+		world = new World(new Vector2(0, -98f), true);
 		// We will use the default LibGdx logo for this example, but we need a
 		//sprite since it's going to move
 
 
+		theGround ground = new theGround();
+		MyActor actor = new MyActor();
+		MyActor.makeBody(world, stage.getCamera());
+		theGround.makeTheGround(world, stage.getCamera());
+
+
+
+		final Vector2 vel = MyActor.body.getLinearVelocity();
+		final Vector2 pos = MyActor.body.getPosition();
 		// Create a physics world, the heart of the simulation.  The Vector
 		//passed in is gravity
-		world = new World(new Vector2(0, -98f), true);
+
 
 
 		//
@@ -129,31 +139,33 @@ public class MyGdxGame extends ApplicationAdapter {
 		leftButton.setPosition(5, 10); //** Button location **//
 		leftButton.setHeight(15); //** Button Height **//
 		leftButton.setWidth(20); //** Button Width **//
-		leftButton.addListener(new InputListener() {
+		leftButton.getLabel().setFontScale(0.3f);
+		/*leftButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				Gdx.app.log("DFM", "Pressed"); //** Usually used to start Game, etc. **//
+				Gdx.app.log("DFM", "Pressed"); /*//** Usually used to start Game, etc. **//*/
 				if (vel.x > -MAX_VELOCITY) {
 					MyActor.body.applyLinearImpulse(-0.80f, 0, pos.x, pos.y, true);
 				}
 
 				return true;
 			}
-		});
+		});*/
 
-		rightButton = new TextButton("GO LEFT", textButtonStyle);
-		rightButton.setPosition(5, 35); //** Button location **//
+		rightButton = new TextButton("GO RIGHT", textButtonStyle);
+		rightButton.setPosition(30, 10); //** Button location **//
 		rightButton.setHeight(15); //** Button Height **//
 		rightButton.setWidth(20); //** Button Width **//
-		rightButton.addListener(new InputListener() {
+		rightButton.getLabel().setFontScale(0.3f); //
+		/*rightButton.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				Gdx.app.log("DFM", "Pressed"); //** Usually used to start Game, etc. **//
+				Gdx.app.log("DFM", "Pressed"); /*//** Usually used to start Game, etc. **//*/
 				if (vel.x < MAX_VELOCITY) {
 					MyActor.body.applyLinearImpulse(0.80f, 0, pos.x, pos.y, true);
 				}
 
 				return true;
 			}
-		});
+		});*/
 
 		// after testing all the stuff, put touchpad below actor for drawing order
 		stage.addActor(ground);
@@ -166,8 +178,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(UIstage);
 
 		// makes a body with a fixture
-		MyActor.makeBody(world, stage.getCamera());
-		theGround.makeTheGround(world, stage.getCamera());
+
 
 		debugRenderer = new Box2DDebugRenderer();
 	}
@@ -194,6 +205,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		stage.draw();
 		touchpad.setBounds(2, 1, 4, 4);
 		batch.end();
+
+		if (leftButton.isPressed()) {
+			if (MyActor.body.getLinearVelocity().x > -MAX_VELOCITY) {
+				MyActor.body.applyLinearImpulse(-1.8f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
+			}
+		}
+
+		if (rightButton.isPressed()) {
+			if (MyActor.body.getLinearVelocity().x < MAX_VELOCITY) {
+				MyActor.body.applyLinearImpulse(1.8f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
+			}
+		}
 
 		stage.act(Gdx.graphics.getDeltaTime());
 		debugRenderer.render(world, stage.getCamera().combined);

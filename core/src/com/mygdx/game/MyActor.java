@@ -23,7 +23,7 @@ public class MyActor extends Actor {
     static FixtureDef fixtureDef;
     static Body body;
     static PolygonShape groundBox;
-    Sprite sprite = new Sprite(new Texture(Gdx.files.internal("badlogic.jpg")));
+    Sprite sprite = new Sprite(new Texture(Gdx.files.internal("Player.png")));
 
     public MyActor() {
 
