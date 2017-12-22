@@ -45,10 +45,9 @@ public class theGround extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        sprite.setBounds(groundBody.getPosition().x - sprite.getWidth()/2, groundBody.getPosition().y - sprite.getHeight()/2, 1, 1);
-        // Set origin center for the sprite to guarantee proper rotation with physicsBody.
-        sprite.setOriginCenter();
+        sprite.setBounds(groundBody.getPosition().x - sprite.getWidth()/2, groundBody.getPosition().y - sprite.getHeight()/2, 34, 2);
         sprite.setRotation(MathUtils.radiansToDegrees * groundBody.getAngle());
+        sprite.setOriginCenter();
         sprite.draw(batch);
 
     }

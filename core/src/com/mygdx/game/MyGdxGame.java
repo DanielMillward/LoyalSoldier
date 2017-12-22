@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -31,13 +32,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 
 public class MyGdxGame extends ApplicationAdapter {
-
+	private SpriteBatch batch;
 	Sprite sprite;
 	Texture img;
-	World world;
+	static World world;
 	private OrthographicCamera camera;
-	private Stage stage;
-	private SpriteBatch batch;
+	static Stage stage;
+
 	Touchpad touchpad;
 	Touchpad.TouchpadStyle touchpadStyle;
 	Skin touchpadSkin;
@@ -51,13 +52,15 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Skin skin;
 	private TextButton leftButton;
 	private TextButton rightButton;
+	static TextButton upButton;
+	static TextButton shootButton;
 
-
+Sprite bulletThing;
 
 
 
 	int MAX_VELOCITY = 2;
-
+	static int direction = 1;
 
 
 
@@ -65,18 +68,21 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void create() {
 		//the camera here doesn't care what the resolution is, this is not pixels (?). I think
 		// everything relies on this, so it's all relative to this thing
+		batch = new SpriteBatch();
 		stage = new Stage(new StretchViewport(17, 10));
 		UIstage = new Stage(new StretchViewport(170, 100));
 		Gdx.input.setInputProcessor(stage);
-		batch = new SpriteBatch();
+
 		UIbatch = new SpriteBatch();
 		world = new World(new Vector2(0, -98f), true);
+		world.setContactListener(new B2dContactListener());
 		// We will use the default LibGdx logo for this example, but we need a
 		//sprite since it's going to move
 
 
 		theGround ground = new theGround();
 		MyActor actor = new MyActor();
+		bullet bullet = new bullet();
 		MyActor.makeBody(world, stage.getCamera());
 		theGround.makeTheGround(world, stage.getCamera());
 
@@ -112,7 +118,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		touchpad = new Touchpad(4, touchpadStyle);
 
 
-
+		Pixmap pixmapa = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+		pixmapa.setColor(Color.WHITE);
+		pixmapa.fill();
+		bulletThing = new Sprite(new Texture(pixmapa));
 //
 
 		//
@@ -130,7 +139,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		TextButtonStyle textButtonStyle = new TextButtonStyle();
 		textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
 		textButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
+		//textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
 		textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
 		textButtonStyle.font = skin.getFont("default");
 		skin.add("default", textButtonStyle);
@@ -167,12 +176,27 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		});*/
 
+		upButton = new TextButton("GO UP", textButtonStyle);
+		upButton.setPosition(110, 10); //** Button location **//
+		upButton.setHeight(15); //** Button Height **//
+		upButton.setWidth(20); //** Button Width **//
+		upButton.getLabel().setFontScale(0.3f);
+
+		shootButton = new TextButton("SHOOT", textButtonStyle);
+		shootButton.setPosition(135, 10); //** Button location **//
+		shootButton.setHeight(15); //** Button Height **//
+		shootButton.setWidth(20); //** Button Width **//
+		shootButton.getLabel().setFontScale(0.3f);
+
 		// after testing all the stuff, put touchpad below actor for drawing order
 		stage.addActor(ground);
 		stage.addActor(actor);
+		stage.addActor(bullet);
 
 		UIstage.addActor(leftButton);
 		UIstage.addActor(rightButton);
+		UIstage.addActor(upButton);
+		UIstage.addActor(shootButton);
 
 
 		Gdx.input.setInputProcessor(UIstage);
@@ -188,7 +212,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		// Advance the world, by the amount of time that has elapsed since the
 		//last frame
-		// Generally in a real game, dont do this in the render loop, as you are
+		// Generally in a real game, don't do this in the render loop, as you are
 		//tying the physics
 		// update rate to the frame rate, and vice versa
 
@@ -202,26 +226,35 @@ public class MyGdxGame extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
 		UIstage.draw();
-		stage.draw();
 		touchpad.setBounds(2, 1, 4, 4);
 		batch.end();
 
 		if (leftButton.isPressed()) {
 			if (MyActor.body.getLinearVelocity().x > -MAX_VELOCITY) {
-				MyActor.body.applyLinearImpulse(-1.8f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
+				MyActor.body.applyLinearImpulse(-7f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
 			}
+			direction = -1;
 		}
 
 		if (rightButton.isPressed()) {
 			if (MyActor.body.getLinearVelocity().x < MAX_VELOCITY) {
-				MyActor.body.applyLinearImpulse(1.8f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
+				MyActor.body.applyLinearImpulse(7f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
 			}
+			direction = 1;
+		}
+
+		if (shootButton.isPressed()) {
+			bullet aNewBullet = new bullet();
+			batch.draw(bulletThing, 10,10, );
+			stage.addActor(aNewBullet);
 		}
 
 		stage.act(Gdx.graphics.getDeltaTime());
+
 		debugRenderer.render(world, stage.getCamera().combined);
 		// stepping physics
 		doPhysicsStep(Gdx.graphics.getDeltaTime());
+		batch.setProjectionMatrix(stage.getCamera().combined);
 
 	}
 
@@ -237,6 +270,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
+
+	// todo: find out what else to dispose of
 	@Override
 	public void dispose() {
 		img.dispose();
