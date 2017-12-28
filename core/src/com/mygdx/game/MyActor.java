@@ -23,6 +23,9 @@ public class MyActor extends Actor {
     static FixtureDef fixtureDef;
     static Body body;
     static PolygonShape groundBox;
+    public static final int PLAYER_SPEED = 2;
+    public static final int PLAYER_WIDTH = 2;
+    public static final int PLAYER_HEIGHT = 2;
     Sprite sprite = new Sprite(new Texture(Gdx.files.internal("Player.png")));
 
     public MyActor() {
@@ -59,10 +62,8 @@ public class MyActor extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
 //        batch.draw(texture,body.getPosition().x, body.getPosition().y);
-        sprite.setBounds(body.getPosition().x - sprite.getWidth()/2, body.getPosition().y - sprite.getHeight()/2, 2, 2);
+        sprite.setBounds(9, 9, PLAYER_WIDTH, PLAYER_HEIGHT);
         // Set origin center for the sprite to guarantee proper rotation with physicsBody.
-        sprite.setOriginCenter();
-        sprite.setRotation(MathUtils.radiansToDegrees * body.getAngle());
         sprite.draw(batch);
 //        sprite.setPosition(body.getPosition().x - 15, body.getPosition().y - 25);
     }

@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import static com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody;
+import static com.mygdx.game.MyGdxGame.direction;
 import static com.mygdx.game.MyGdxGame.world;
 
 /**
@@ -25,9 +26,11 @@ public class bullet extends Actor{
 static Body body;
 static FixtureDef fixtureDef;
 static PolygonShape groundBox;
-    Sprite bulletThing;
+    Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
 
-        static BodyDef bodyDef = new BodyDef();
+    Sprite sprite = new Sprite(new Texture(pixmap));
+    int bulletDirection;
+
 
 // Set our body's starting position in the world
 
@@ -37,49 +40,19 @@ static PolygonShape groundBox;
 
 
 
-    bullet(){
-        body = world.createBody(bodyDef);
-        bodyDef.position.set(MyActor.body.getPosition().x, MyActor.body.getPosition().y);
-        fixtureDef = new FixtureDef();
-        groundBox = new PolygonShape();
-        fixtureDef.shape = groundBox;
-        fixtureDef.density = 0.9f;
-        fixtureDef.friction = 0.6f;
-        fixtureDef.restitution = 0.1f; // Make it bounce a little bit
-// Create a polygon shape
-// Set the polygon shape as a box which is twice the size of our view port and 20 high
-// (setAsBox takes half-width and half-height as arguments)
-        groundBox.setAsBox(1f, 1f);
-// Create our fixture and attach it to the body
-        body.createFixture(fixtureDef);
-
+    bullet(int direction){
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        bulletDirection = direction;
     }
 
 
-public void update() {
-        bulletThing.setPosition(bullet.body.getPosition().x, bullet.body.getPosition().y);
-    bodyDef.type = DynamicBody;
-
-    }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-
-        if (MyGdxGame.shootButton.isPressed()) {
-          //  bullet.makeBullet(world, MyGdxGame.direction);
-            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-            pixmap.setColor(Color.WHITE);
-            pixmap.fill();
-            bulletThing = new Sprite(new Texture(pixmap));
-            //bulletThing.setBounds(body.getPosition().x - bulletThing.getWidth()/2, body.getPosition().y - bulletThing.getHeight()/2, 1, 1);
-            bulletThing.setBounds(bullet.body.getPosition().x - bulletThing.getWidth()/2, bullet.body.getPosition().y - bulletThing.getHeight()/2, 4f, 4f);
-            bulletThing.setRotation(MathUtils.radiansToDegrees * bullet.body.getAngle());
-            bulletThing.setOriginCenter();
-            bulletThing.draw(batch);
-            body.applyLinearImpulse(MyGdxGame.direction * 1f,0,body.getWorldCenter().x, body.getWorldCenter().y, true);
-        }
-
+        sprite.setBounds(MyGdxGame.actor.getX(), MyGdxGame.actor.getY(), 0.1f, 0.1f);
+        sprite.draw(batch);
     }
 
 
