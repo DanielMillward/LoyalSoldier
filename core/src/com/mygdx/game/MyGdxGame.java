@@ -245,7 +245,7 @@ Sprite bulletThing;
 
 		if (shootButton.isPressed()) {
 			bullet aNewBullet = new bullet();
-			batch.draw(bulletThing, 10,10, );
+			batch.draw(bulletThing, 10,10,1,1 );
 			stage.addActor(aNewBullet);
 		}
 
