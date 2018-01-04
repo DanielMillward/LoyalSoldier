@@ -30,8 +30,6 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class MyGdxGame extends ApplicationAdapter {
@@ -58,12 +56,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	static TextButton upButton;
 	static TextButton shootButton;
 
-	float myTimer = 0f;
+	float  myTimer = 0f;
 	ArrayList<Sprite> spriteList = new ArrayList<Sprite>();
-	ArrayList<Body> bodyList = new ArrayList<Body>();
-	HashMap<Sprite, Body> doubleList = new HashMap<Sprite, Body>();
 
-	Sprite bulletThing;
+Sprite bulletThing;
 	bullet newBullet;
 
 
@@ -95,10 +91,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		theGround.makeTheGround(world, stage.getCamera());
 
 
+
 		final Vector2 vel = MyActor.body.getLinearVelocity();
 		final Vector2 pos = MyActor.body.getPosition();
 		// Create a physics world, the heart of the simulation.  The Vector
 		//passed in is gravity
+
 
 
 		//
@@ -262,23 +260,19 @@ public class MyGdxGame extends ApplicationAdapter {
 				BodyDef bodyDef = new BodyDef();
 				bodyDef.type = BodyDef.BodyType.DynamicBody;
 				bodyDef.position.set(MyActor.body.getPosition().x, MyActor.body.getPosition().y);
-				Body body = world.createBody(bodyDef);
+				body = world.createBody(bodyDef);
 				PolygonShape groundBox = new PolygonShape();
 				groundBox.setAsBox(1f, 1f);
 				FixtureDef fixtureDef = new FixtureDef();
-				fixtureDef.shape = groundBox;
-				fixtureDef.density = 0.9f;
-				fixtureDef.friction = 0.6f;
-				fixtureDef.restitution = 0.1f;
+					fixtureDef.shape = groundBox;
+					fixtureDef.density = 0.9f;
+					fixtureDef.friction = 0.6f;
+					fixtureDef.restitution = 0.1f;
 
 				Fixture fixture = body.createFixture(fixtureDef);
-
-				Sprite sprite = new Sprite(new Texture("block.png"), (int) body.getPosition().x - 1, (int) body.getPosition().y - 1, 2, 2);
-				sprite.setOriginCenter();
-				sprite.setRotation(MathUtils.radiansToDegrees * body.getAngle());
-
-				doubleList.put(sprite, body);
-				body.applyLinearImpulse(MyGdxGame.direction * 1f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+				Sprite sprite = new Sprite(new Texture("block.png"),(int) body.getPosition().x, (int) body.getPosition().y, 2, 2);
+				spriteList.add(sprite);
+				body.applyLinearImpulse(MyGdxGame.direction * 1f, 0,body.getWorldCenter().x, body.getWorldCenter().y, true);
 				myTimer = 0;
 			}
 
@@ -286,17 +280,19 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 
 
-		for(HashMap.Entry m: doubleList.entrySet()){
-			Body key = (Body) m.getValue();
-			Sprite value = (Sprite) m.getKey();
-// key is the body, sprite is the value
-			value.setX(key.getPosition().x);
-			value.setY(key.getPosition().y);
-			stage.getBatch().begin();
-			value.draw(stage.getBatch());
-			stage.getBatch().end();
+
+
+		for (Sprite sprite : spriteList) {
+
+				body.applyLinearImpulse(MyGdxGame.direction * 1f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+				sprite.setX(body.getPosition().x);
+				sprite.setY(body.getPosition().y);
+				UIstage.getBatch().begin();
+				sprite.draw(UIstage.getBatch());
+				UIstage.getBatch().end();
+
 		}
-//m.getKey m.getValue
+
 	}
 
 	// this is code for the physics step
@@ -305,9 +301,9 @@ public class MyGdxGame extends ApplicationAdapter {
 		// max frame time to avoid spiral of death (on slow devices)
 		float frameTime = Math.min(deltaTime, 0.25f);
 		accumulator += frameTime;
-		while (accumulator >= 1 / 45f) {
-			world.step(1 / 45f, 6, 2);
-			accumulator -= 1 / 45f;
+		while (accumulator >= 1/45f) {
+			world.step(1/45f, 6, 2);
+			accumulator -= 1/45f;
 		}
 	}
 
