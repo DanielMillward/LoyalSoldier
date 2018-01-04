@@ -37,13 +37,20 @@ public class MyGdxGame extends ApplicationAdapter {
 	private OrthographicCamera camera;
 	private Stage stage;
 	private SpriteBatch batch;
+<<<<<<< HEAD
 	Touchpad touchpad;
 	Touchpad.TouchpadStyle touchpadStyle;
 	Skin touchpadSkin;
 	Drawable touchBackground;
 	Drawable touchKnob;
+=======
+	private Touchpad touchpad;
+	private Touchpad.TouchpadStyle touchpadStyle;
+	private Skin touchpadSkin;
+	private Drawable touchBackground;
+	private Drawable touchKnob;
+>>>>>>> parent of 892114c... adjust to Box2d coords + fiddle with trackpad
 	private float accumulator = 0;
-	Box2DDebugRenderer debugRenderer;
 
 	private Stage UIstage;
 	private SpriteBatch UIbatch;
@@ -63,10 +70,15 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void create() {
+<<<<<<< HEAD
 		//the camera here doesn't care what the resolution is, this is not pixels (?). I think
 		// everything relies on this, so it's all relative to this thing
 		stage = new Stage(new StretchViewport(17, 10));
 		UIstage = new Stage(new StretchViewport(170, 100));
+=======
+		stage = new Stage(new StretchViewport(640, 480));
+
+>>>>>>> parent of 892114c... adjust to Box2d coords + fiddle with trackpad
 		Gdx.input.setInputProcessor(stage);
 		batch = new SpriteBatch();
 		UIbatch = new SpriteBatch();
@@ -79,18 +91,22 @@ public class MyGdxGame extends ApplicationAdapter {
 		world = new World(new Vector2(0, -98f), true);
 
 
+<<<<<<< HEAD
 		//
 
 		//
 		//following is touchpad code
 		//todo: delete touchpad, use buttons instead
+=======
+		//Create a touchpad skin
+>>>>>>> parent of 892114c... adjust to Box2d coords + fiddle with trackpad
 		touchpadSkin = new Skin();
 		//Set background image
 		touchpadSkin.add("touchBackground", new Texture("touchBackground.png"));
 		//Set knob image
-		touchpadSkin.add("touchKnob", new Texture("block.png"));
+		touchpadSkin.add("touchKnob", new Texture("touchKnob.png"));
 		//Create TouchPad Style
-		touchpadStyle = new Touchpad.TouchpadStyle();
+		touchpadStyle = new TouchpadStyle();
 		//Create Drawable's from TouchPad skin
 		touchBackground = touchpadSkin.getDrawable("touchBackground");
 		touchKnob = touchpadSkin.getDrawable("touchKnob");
@@ -98,9 +114,11 @@ public class MyGdxGame extends ApplicationAdapter {
 		touchpadStyle.background = touchBackground;
 		touchpadStyle.knob = touchKnob;
 		//Create new TouchPad with the created style
-		//must be in pixels, so dont change this probably
-		touchpad = new Touchpad(4, touchpadStyle);
+		touchpad = new Touchpad(10, touchpadStyle);
+		//setBounds(x,y,width,height)
+		touchpad.setBounds(15, 15, 200, 200);
 
+<<<<<<< HEAD
 
 
 //
@@ -164,12 +182,21 @@ public class MyGdxGame extends ApplicationAdapter {
 
 
 		Gdx.input.setInputProcessor(UIstage);
+=======
+		//Create a Stage and add TouchPad
+		MyActor actor = new MyActor();
+		theGround ground = new theGround();
+		stage.addActor(touchpad);
+		stage.addActor(actor);
+		stage.addActor(ground);
+		Gdx.input.setInputProcessor(stage);
+>>>>>>> parent of 892114c... adjust to Box2d coords + fiddle with trackpad
 
 		// makes a body with a fixture
 		MyActor.makeBody(world, stage.getCamera());
 		theGround.makeTheGround(world, stage.getCamera());
 
-		debugRenderer = new Box2DDebugRenderer();
+
 	}
 
 	@Override
@@ -192,11 +219,13 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.begin();
 		UIstage.draw();
 		stage.draw();
+<<<<<<< HEAD
 		touchpad.setBounds(2, 1, 4, 4);
+=======
+>>>>>>> parent of 892114c... adjust to Box2d coords + fiddle with trackpad
 		batch.end();
-
 		stage.act(Gdx.graphics.getDeltaTime());
-		debugRenderer.render(world, stage.getCamera().combined);
+
 		// stepping physics
 		doPhysicsStep(Gdx.graphics.getDeltaTime());
 
