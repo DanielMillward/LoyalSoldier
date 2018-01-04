@@ -41,9 +41,9 @@ public class MyActor extends Actor {
         fixtureDef = new FixtureDef();
         groundBox = new PolygonShape();
         fixtureDef.shape = groundBox;
-        fixtureDef.density = 0.9f;
-        fixtureDef.friction = 0.35f;
-        fixtureDef.restitution = 0.1f; // Make it bounce a little bit
+        fixtureDef.density = 1f;
+        fixtureDef.friction = 0.4f;
+        fixtureDef.restitution = 0.6f; // Make it bounce a little bit
 // Create a polygon shape
 // Set the polygon shape as a box which is twice the size of our view port and 20 high
 // (setAsBox takes half-width and half-height as arguments)
@@ -59,7 +59,7 @@ public class MyActor extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
 //        batch.draw(texture,body.getPosition().x, body.getPosition().y);
-        sprite.setBounds(body.getPosition().x - sprite.getWidth()/2, body.getPosition().y - sprite.getHeight()/2, 2, 2);
+        sprite.setBounds(body.getPosition().x - sprite.getWidth()/2, body.getPosition().y - sprite.getHeight()/2, 1, 1);
         // Set origin center for the sprite to guarantee proper rotation with physicsBody.
         sprite.setOriginCenter();
         sprite.setRotation(MathUtils.radiansToDegrees * body.getAngle());
