@@ -75,18 +75,17 @@ public class MyGdxGame extends ApplicationAdapter {
 	int MAX_VELOCITY = 2;
 	static int direction = 1;
 	Body body;
-	static int upVelocity = 0;
+	int upVelocity = 0;
 	public static final int gravity = -10;
-	static int upSpeed = upVelocity + gravity;
-	static float moving;
+	int upSpeed = upVelocity + gravity;
+	float moving;
 	theGround ground;
 	static MyActor actor;
-	public static ArrayList<theGround> wallSpriteList = new ArrayList<theGround>();
-	public static ArrayList<Rectangle> wallList = new ArrayList<Rectangle>();
-	public static ArrayList<bullet> bulletList = new ArrayList<bullet>();
+	ArrayList<theGround> wallSpriteList = new ArrayList<theGround>();
+	ArrayList<Rectangle> wallList = new ArrayList<Rectangle>();
+	ArrayList<bullet> bulletList = new ArrayList<bullet>();
 
-int checkerInt;
-long otherCheckerInt;
+
 
 	@Override
 
@@ -251,21 +250,38 @@ long otherCheckerInt;
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		bullet newBullet;
 
-		if (otherCheckerInt == 0){
-			actor.setPosition(9, 9);
-	}
-	otherCheckerInt++;
+
+
 		if (upButton.isPressed()) {
 			jump();
 		}
 		if (leftButton.isPressed()) {
-			moving = 0.02f * -1 * PLAYER_SPEED;
+			moving = 0.125f * -1 * PLAYER_SPEED;
 			direction = -1;
 		}
 		if (rightButton.isPressed()) {
-			moving = 0.02f * PLAYER_SPEED;
+			moving = 0.125f * PLAYER_SPEED;
 			direction = 1;
 		}
+
+		for (int i = 0; i > 8; i++) {
+			int check = 0;
+			Rectangle ghost = new Rectangle(actor.getX() + moving, actor.getY() + upSpeed, PLAYER_WIDTH, PLAYER_HEIGHT);
+			for (Rectangle wall : wallList) {
+				if (!ghost.overlaps(wall)) {
+					check = check + 1;
+				}
+			}
+			if (check == wallList.size()) {
+				actor.setX(actor.getX() + moving);
+				actor.setY(actor.getY() + upSpeed);
+			}
+			check = 0;
+			moving = 0;
+			ghost = null;
+		}
+
+
 
 		stage.act(Gdx.graphics.getDeltaTime());
 
@@ -282,44 +298,22 @@ long otherCheckerInt;
 			myTimer = myTimer + Gdx.graphics.getDeltaTime();
 		}
 
-		if (checkerInt >= 60) {
-			int check = 0;
-			Rectangle ghost = new Rectangle(actor.getX() + MyGdxGame.moving, actor.getY() + upSpeed, PLAYER_WIDTH, PLAYER_HEIGHT);
+		for (bullet bullet : bulletList) {
 			for (Rectangle wall : wallList) {
-				if (!ghost.overlaps(wall)) {
-					check = check + 1;
+				if (wall.contains(bullet.getX() + bullet.bulletDirection, bullet.getY())) {
+					bullet.remove();
+				} else {
+					bullet.setX(bullet.getX() + bullet.bulletDirection);
 				}
 			}
-			if (check == wallList.size()) {
-				actor.setX(actor.getX() + MyGdxGame.moving);
-				actor.setY(actor.getY() + upSpeed);
-			}
-			check = 0;
-			moving = 0;
-			ghost = null;
-
-			for (bullet bullet : bulletList) {
-				for (Rectangle wall : wallList) {
-					if (wall.contains(bullet.getX() + bullet.bulletDirection, bullet.getY())) {
-						bullet.remove();
-					} else {
-						bullet.setX(bullet.getX() + bullet.bulletDirection);
-					}
-				}
-			}
-			checkerInt = 0;
 		}
+
 		batch.begin();
 		stage.draw();
 		UIstage.draw();
 		batch.end();
-		if (myTimer > 1) {
-			System.out.println("DFM" + actor.getX() + " , " + actor.getY());
-			myTimer = 0;
-		}
-		myTimer = myTimer + Gdx.graphics.getDeltaTime();
+
 		moving = 0;
-		checkerInt++;
 	}
 
 
