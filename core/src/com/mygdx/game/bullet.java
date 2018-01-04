@@ -15,31 +15,28 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import static com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody;
-import static com.mygdx.game.MyGdxGame.world;
 
 /**
  * Created by Daniel Millward on 12/22/2017.
  */
 
 public class bullet extends Actor{
+static BodyDef bodyDef;
 static Body body;
 static FixtureDef fixtureDef;
 static PolygonShape groundBox;
     Sprite bulletThing;
 
-        static BodyDef bodyDef = new BodyDef();
 
+    public static void makeBullet(World world, int direction) {
+        //todo: put this in if/else method when shoot is pressed
+        bodyDef = new BodyDef();
+        bodyDef.type = DynamicBody;
 // Set our body's starting position in the world
-
-// Create our body in the world using our body definition
-
-        // Create a fixture definition to apply our shape to
-
-
-
-    bullet(){
-        body = world.createBody(bodyDef);
         bodyDef.position.set(MyActor.body.getPosition().x, MyActor.body.getPosition().y);
+// Create our body in the world using our body definition
+        body = world.createBody(bodyDef);
+        // Create a fixture definition to apply our shape to
         fixtureDef = new FixtureDef();
         groundBox = new PolygonShape();
         fixtureDef.shape = groundBox;
@@ -53,21 +50,17 @@ static PolygonShape groundBox;
 // Create our fixture and attach it to the body
         body.createFixture(fixtureDef);
 
+
+
     }
 
-
-public void update() {
-        bulletThing.setPosition(bullet.body.getPosition().x, bullet.body.getPosition().y);
-    bodyDef.type = DynamicBody;
-
-    }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
 
         if (MyGdxGame.shootButton.isPressed()) {
-          //  bullet.makeBullet(world, MyGdxGame.direction);
+            bullet.makeBullet(MyGdxGame.world, MyGdxGame.direction);
             Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
             pixmap.setColor(Color.WHITE);
             pixmap.fill();

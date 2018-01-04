@@ -29,7 +29,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import java.util.ArrayList;
 
 
 public class MyGdxGame extends ApplicationAdapter {
@@ -56,16 +55,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	static TextButton upButton;
 	static TextButton shootButton;
 
-	float  myTimer = 0f;
-	ArrayList<Sprite> spriteList = new ArrayList<Sprite>();
-
 Sprite bulletThing;
-	bullet newBullet;
+
 
 
 	int MAX_VELOCITY = 2;
 	static int direction = 1;
-	Body body;
+
 
 
 	@Override
@@ -86,7 +82,7 @@ Sprite bulletThing;
 
 		theGround ground = new theGround();
 		MyActor actor = new MyActor();
-
+		bullet bullet = new bullet();
 		MyActor.makeBody(world, stage.getCamera());
 		theGround.makeTheGround(world, stage.getCamera());
 
@@ -122,6 +118,10 @@ Sprite bulletThing;
 		touchpad = new Touchpad(4, touchpadStyle);
 
 
+		Pixmap pixmapa = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+		pixmapa.setColor(Color.WHITE);
+		pixmapa.fill();
+		bulletThing = new Sprite(new Texture(pixmapa));
 //
 
 		//
@@ -191,7 +191,7 @@ Sprite bulletThing;
 		// after testing all the stuff, put touchpad below actor for drawing order
 		stage.addActor(ground);
 		stage.addActor(actor);
-		//stage.addActor(bullet);
+		stage.addActor(bullet);
 
 		UIstage.addActor(leftButton);
 		UIstage.addActor(rightButton);
@@ -224,11 +224,9 @@ Sprite bulletThing;
 		// You know the rest...
 		Gdx.gl.glClearColor(0.5f, 0.5f, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		bullet newBullet;
-
 		batch.begin();
-		stage.draw();
 		UIstage.draw();
+		touchpad.setBounds(2, 1, 4, 4);
 		batch.end();
 
 		if (leftButton.isPressed()) {
@@ -245,6 +243,11 @@ Sprite bulletThing;
 			direction = 1;
 		}
 
+		if (shootButton.isPressed()) {
+			bullet aNewBullet = new bullet();
+			batch.draw(bulletThing, 10,10, );
+			stage.addActor(aNewBullet);
+		}
 
 		stage.act(Gdx.graphics.getDeltaTime());
 
@@ -252,46 +255,6 @@ Sprite bulletThing;
 		// stepping physics
 		doPhysicsStep(Gdx.graphics.getDeltaTime());
 		batch.setProjectionMatrix(stage.getCamera().combined);
-
-		if (shootButton.isPressed()) {
-
-			if (myTimer > 1) {
-				System.out.println("DFM");
-				BodyDef bodyDef = new BodyDef();
-				bodyDef.type = BodyDef.BodyType.DynamicBody;
-				bodyDef.position.set(MyActor.body.getPosition().x, MyActor.body.getPosition().y);
-				body = world.createBody(bodyDef);
-				PolygonShape groundBox = new PolygonShape();
-				groundBox.setAsBox(1f, 1f);
-				FixtureDef fixtureDef = new FixtureDef();
-					fixtureDef.shape = groundBox;
-					fixtureDef.density = 0.9f;
-					fixtureDef.friction = 0.6f;
-					fixtureDef.restitution = 0.1f;
-
-				Fixture fixture = body.createFixture(fixtureDef);
-				Sprite sprite = new Sprite(new Texture("block.png"),(int) body.getPosition().x, (int) body.getPosition().y, 2, 2);
-				spriteList.add(sprite);
-				body.applyLinearImpulse(MyGdxGame.direction * 1f, 0,body.getWorldCenter().x, body.getWorldCenter().y, true);
-				myTimer = 0;
-			}
-
-			myTimer = myTimer + Gdx.graphics.getDeltaTime();
-		}
-
-
-
-
-		for (Sprite sprite : spriteList) {
-
-				body.applyLinearImpulse(MyGdxGame.direction * 1f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
-				sprite.setX(body.getPosition().x);
-				sprite.setY(body.getPosition().y);
-				UIstage.getBatch().begin();
-				sprite.draw(UIstage.getBatch());
-				UIstage.getBatch().end();
-
-		}
 
 	}
 
@@ -311,7 +274,7 @@ Sprite bulletThing;
 	// todo: find out what else to dispose of
 	@Override
 	public void dispose() {
-//		img.dispose();
+		img.dispose();
 		world.dispose();
 		theGround.groundBox.dispose();
 
