@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -33,10 +32,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.mygdx.game.MyActor.PLAYER_HEIGHT;
-import static com.mygdx.game.MyActor.PLAYER_SPEED;
-import static com.mygdx.game.MyActor.PLAYER_WIDTH;
 
 
 public class MyGdxGame extends ApplicationAdapter {
@@ -75,20 +70,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	int MAX_VELOCITY = 2;
 	static int direction = 1;
 	Body body;
-	int upVelocity = 0;
-	public static final int gravity = -10;
-	int upSpeed = upVelocity + gravity;
-	float moving;
-	theGround ground;
-	static MyActor actor;
-	ArrayList<theGround> wallSpriteList = new ArrayList<theGround>();
-	ArrayList<Rectangle> wallList = new ArrayList<Rectangle>();
-	ArrayList<bullet> bulletList = new ArrayList<bullet>();
-
 
 
 	@Override
-
 	public void create() {
 		//the camera here doesn't care what the resolution is, this is not pixels (?). I think
 		// everything relies on this, so it's all relative to this thing
@@ -104,8 +88,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		//sprite since it's going to move
 
 
-		ground = new theGround();
-		actor = new MyActor();
+		theGround ground = new theGround();
+		MyActor actor = new MyActor();
 
 		MyActor.makeBody(world, stage.getCamera());
 		theGround.makeTheGround(world, stage.getCamera());
@@ -123,9 +107,10 @@ public class MyGdxGame extends ApplicationAdapter {
 		//following is touchpad code
 		//todo: delete touchpad, use buttons instead
 		touchpadSkin = new Skin();
-
-				touchpadSkin.add("touchBackground", new Texture("touchBackground.png"));
-				touchpadSkin.add("touchKnob", new Texture("block.png"));
+		//Set background image
+		touchpadSkin.add("touchBackground", new Texture("touchBackground.png"));
+		//Set knob image
+		touchpadSkin.add("touchKnob", new Texture("block.png"));
 		//Create TouchPad Style
 		touchpadStyle = new Touchpad.TouchpadStyle();
 		//Create Drawable's from TouchPad skin
@@ -206,7 +191,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		shootButton.getLabel().setFontScale(0.3f);
 
 		// after testing all the stuff, put touchpad below actor for drawing order
-		wallSpriteList.add(ground);
 		stage.addActor(ground);
 		stage.addActor(actor);
 		//stage.addActor(bullet);
@@ -221,19 +205,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		// makes a body with a fixture
 
-		for (theGround wall : wallSpriteList) {
-			Rectangle rectangle = new Rectangle(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight());
-			wallList.add(rectangle);
-		}
-	}
 
-	public void jump() {
-		upVelocity = 20;
+		debugRenderer = new Box2DDebugRenderer();
 	}
 
 	@Override
 	public void render() {
-		moving = 0;
+
 		// Advance the world, by the amount of time that has elapsed since the
 		//last frame
 		// Generally in a real game, don't do this in the render loop, as you are
@@ -250,70 +228,87 @@ public class MyGdxGame extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		bullet newBullet;
 
-
-
-		if (upButton.isPressed()) {
-			jump();
-		}
-		if (leftButton.isPressed()) {
-			moving = 0.125f * -1 * PLAYER_SPEED;
-			direction = -1;
-		}
-		if (rightButton.isPressed()) {
-			moving = 0.125f * PLAYER_SPEED;
-			direction = 1;
-		}
-
-		for (int i = 0; i > 8; i++) {
-			int check = 0;
-			Rectangle ghost = new Rectangle(actor.getX() + moving, actor.getY() + upSpeed, PLAYER_WIDTH, PLAYER_HEIGHT);
-			for (Rectangle wall : wallList) {
-				if (!ghost.overlaps(wall)) {
-					check = check + 1;
-				}
-			}
-			if (check == wallList.size()) {
-				actor.setX(actor.getX() + moving);
-				actor.setY(actor.getY() + upSpeed);
-			}
-			check = 0;
-			moving = 0;
-			ghost = null;
-		}
-
-
-
-		stage.act(Gdx.graphics.getDeltaTime());
-
-		batch.setProjectionMatrix(stage.getCamera().combined);
-
-		if (shootButton.isPressed()) {
-
-			if (myTimer > 1) {
-				bullet aNewBullet = new bullet(direction);
-				bulletList.add(aNewBullet);
-				stage.addActor(aNewBullet);
-			}
-
-			myTimer = myTimer + Gdx.graphics.getDeltaTime();
-		}
-
-		for (bullet bullet : bulletList) {
-			for (Rectangle wall : wallList) {
-				if (wall.contains(bullet.getX() + bullet.bulletDirection, bullet.getY())) {
-					bullet.remove();
-				} else {
-					bullet.setX(bullet.getX() + bullet.bulletDirection);
-				}
-			}
-		}
-
 		batch.begin();
 		stage.draw();
 		UIstage.draw();
 		batch.end();
 
-		moving = 0;
+		if (leftButton.isPressed()) {
+			if (MyActor.body.getLinearVelocity().x > -MAX_VELOCITY) {
+				MyActor.body.applyLinearImpulse(-7f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
+			}
+			direction = -1;
+		}
+
+		if (rightButton.isPressed()) {
+			if (MyActor.body.getLinearVelocity().x < MAX_VELOCITY) {
+				MyActor.body.applyLinearImpulse(7f, 0, MyActor.body.getPosition().x, MyActor.body.getPosition().y, true);
+			}
+			direction = 1;
+		}
+
+
+		stage.act(Gdx.graphics.getDeltaTime());
+
+		debugRenderer.render(world, stage.getCamera().combined);
+		// stepping physics
+		doPhysicsStep(Gdx.graphics.getDeltaTime());
+		batch.setProjectionMatrix(stage.getCamera().combined);
+
+		if (shootButton.isPressed()) {
+
+			if (myTimer > 1) {
+				System.out.println("DFM");
+				BodyDef bodyDef = new BodyDef();
+				bodyDef.type = BodyDef.BodyType.DynamicBody;
+				bodyDef.position.set(MyActor.body.getPosition().x, MyActor.body.getPosition().y);
+				Body body = world.createBody(bodyDef);
+				PolygonShape groundBox = new PolygonShape();
+				groundBox.setAsBox(1f, 1f);
+				FixtureDef fixtureDef = new FixtureDef();
+				fixtureDef.shape = groundBox;
+				fixtureDef.density = 0.9f;
+				fixtureDef.friction = 0.6f;
+				fixtureDef.restitution = 0.1f;
+
+				Fixture fixture = body.createFixture(fixtureDef);
+
+				Sprite sprite = new Sprite(new Texture("block.png"), (int) body.getPosition().x - 1, (int) body.getPosition().y - 1, 2, 2);
+				sprite.setOriginCenter();
+				sprite.setRotation(MathUtils.radiansToDegrees * body.getAngle());
+
+				doubleList.put(sprite, body);
+				body.applyLinearImpulse(MyGdxGame.direction * 1f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+				myTimer = 0;
+			}
+
+			myTimer = myTimer + Gdx.graphics.getDeltaTime();
+		}
+
+
+		for(HashMap.Entry m: doubleList.entrySet()){
+			Body key = (Body) m.getValue();
+			Sprite value = (Sprite) m.getKey();
+// key is the body, sprite is the value
+			value.setX(key.getPosition().x);
+			value.setY(key.getPosition().y);
+			stage.getBatch().begin();
+			value.draw(stage.getBatch());
+			stage.getBatch().end();
+		}
+//m.getKey m.getValue
+	}
+
+	// this is code for the physics step
+	private void doPhysicsStep(float deltaTime) {
+		// fixed time step
+		// max frame time to avoid spiral of death (on slow devices)
+		float frameTime = Math.min(deltaTime, 0.25f);
+		accumulator += frameTime;
+		while (accumulator >= 1 / 45f) {
+			world.step(1 / 45f, 6, 2);
+			accumulator -= 1 / 45f;
+		}
 	}
 
 
